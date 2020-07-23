@@ -4,13 +4,14 @@
     <v-btn @click="inc.actions.decrement">Decrement</v-btn>
     <div>Count is: {{ inc.state.count }}, double is: {{ inc.state.double }}</div>
     <div>Mouse coords are ({{ mp.x }},{{ mp.y }})</div>
-    <div v-for="(item, i) in fl.list" :key="i" :ref="fl.fillRef">-={{ item }}=-</div>
+    <div v-for="item in fl.list" :key="item" ref="divs">-={{ item }}=-</div>
     <v-btn @click="fl.check">Check</v-btn>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate, getCurrentInstance } from "@vue/composition-api";
+import { VueConstructor } from "vue/types/umd";
 
 function incLogic() {
   onMounted(() => {
@@ -55,29 +56,21 @@ function useMousePosition() {
   return { x, y };
 }
 
-function forLogic() {
+function forLogic(vm: InstanceType<VueConstructor> | null) {
   const list = reactive([1, 2, 3]);
-  const divs = ref([] as HTMLElement[]);
+  let divs = reactive([] as HTMLElement[]);
 
   onBeforeUpdate(() => {
-    divs.value = [];
+    divs = [];
   });
 
-  function fillRef(i: number) {
-    return (el: HTMLElement) => {
-      console.log("fillRef called");
-      divs.value[i] = el;
-    };
-  }
-
   function check() {
-    console.log("amount of refs:", divs.value.length);
-    list.forEach((div, i) => {
-      console.log(divs.value[i]);
+    (vm?.$refs.divs as Array<HTMLElement>).forEach((div, i) => {
+      div.textContent = String(i);
     });
   }
 
-  return { list, divs, fillRef, check };
+  return { list, divs, check };
 }
 
 export default defineComponent({
@@ -85,9 +78,8 @@ export default defineComponent({
   setup() {
     const inc = incLogic();
     const mp = useMousePosition();
-    const fl = forLogic();
     const vm = getCurrentInstance();
-    console.log(vm);
+    const fl = forLogic(vm);
 
     return {
       inc,
