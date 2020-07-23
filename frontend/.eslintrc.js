@@ -4,6 +4,7 @@ module.exports = {
     node: true
   },
   extends: [
+    "vuetify",
     "plugin:vue/essential",
     "eslint:recommended",
     "@vue/typescript/recommended",
@@ -14,6 +15,9 @@ module.exports = {
     ecmaVersion: 2020
   },
   rules: {
+    "vuetify/no-deprecated-classes": "error",
+    "vuetify/grid-unknown-attributes": "error",
+    "vuetify/no-legacy-grid": "error",
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
     "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off"
   },

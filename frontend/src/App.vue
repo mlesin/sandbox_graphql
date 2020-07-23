@@ -21,7 +21,7 @@
         />
       </div>
 
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-btn
         href="https://github.com/vuetifyjs/vuetify/releases/latest"
@@ -34,7 +34,7 @@
     </v-app-bar>
 
     <v-main>
-      <HelloWorld />
+      <hello-world />
     </v-main>
   </v-app>
 </template>
