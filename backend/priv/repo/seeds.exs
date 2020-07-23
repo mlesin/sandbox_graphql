@@ -9,3 +9,9 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+alias Sandbox.Todos.Task
+alias Sandbox.Repo
+
+%Task{task: "Important task", description: "The Best Query Language"} |> Repo.insert!()
+%Task{task: "Other task", description: "Awesome GraphQL Client"} |> Repo.insert!()

@@ -5,7 +5,14 @@ defmodule SandboxWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", SandboxWeb do
+  scope "/" do
     pipe_through :api
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: SandboxWeb.Schema,
+      interface: :simple,
+      context: %{pubsub: SandboxWeb.Endpoint}
+
+    forward "/", Absinthe.Plug, schema: SandboxWeb.Schema
   end
 end

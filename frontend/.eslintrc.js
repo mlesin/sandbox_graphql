@@ -27,6 +27,12 @@ module.exports = {
       env: {
         jest: true
       }
+    },
+    {
+      files: ["src/generated/*.ts"],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
     }
   ]
 };

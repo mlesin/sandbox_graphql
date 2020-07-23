@@ -1,0 +1,7 @@
+query getAllTasks {
+  allTasks {
+    id
+    task
+    description
+  }
+}

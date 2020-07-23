@@ -1,0 +1,7 @@
+mutation createTask {
+  createTask(task:"Some task", description:"Some description") {
+    id
+    task
+    description
+  }
+}
