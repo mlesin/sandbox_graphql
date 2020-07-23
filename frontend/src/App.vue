@@ -31,7 +31,8 @@
 
     <v-main>
       <!-- <hello-world /> -->
-      <incrementor />
+      <!-- <incrementor /> -->
+      <fetcher />
     </v-main>
   </v-app>
 </template>
@@ -40,13 +41,15 @@
 import { defineComponent } from "@vue/composition-api";
 import HelloWorld from "./components/HelloWorld.vue";
 import Incrementor from "@/components/Incrementor.vue";
+import Fetcher from "@/components/Fetcher.vue";
 
 export default defineComponent({
   name: "App",
 
   components: {
     HelloWorld,
-    Incrementor
+    Incrementor,
+    Fetcher
   },
 
   data: () => ({

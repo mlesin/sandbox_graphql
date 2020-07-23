@@ -7,6 +7,8 @@ generates:
       - typescript
       - typescript-operations
       - typescript-vue-apollo
+    config:
+      withCompositionFunctions: true
   ./graphql.schema.json:
     plugins:
       - "introspection"

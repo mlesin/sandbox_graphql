@@ -43,12 +43,6 @@ export type GetAllTasksQuery = { __typename?: "RootQueryType" } & {
   allTasks: Array<{ __typename?: "Task" } & Pick<Task, "id" | "task" | "description">>;
 };
 
-export type CreateTaskMutationVariables = Exact<{ [key: string]: never }>;
-
-export type CreateTaskMutation = { __typename?: "RootMutationType" } & {
-  createTask?: Maybe<{ __typename?: "Task" } & Pick<Task, "id" | "task" | "description">>;
-};
-
 export const GetAllTasksDocument = gql`
   query getAllTasks {
     allTasks {
@@ -83,38 +77,3 @@ export function useGetAllTasksQuery(
   return VueApolloComposable.useQuery<GetAllTasksQuery, undefined>(GetAllTasksDocument, undefined, options);
 }
 export type GetAllTasksQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAllTasksQuery, GetAllTasksQueryVariables>;
-export const CreateTaskDocument = gql`
-  mutation createTask {
-    createTask(task: "Some task", description: "Some description") {
-      id
-      task
-      description
-    }
-  }
-`;
-
-/**
- * __useCreateTaskMutation__
- *
- * To run a mutation, you first call `useCreateTaskMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useCreateTaskMutation` returns an object that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
- *
- * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
- *
- * @example
- * const { mutate, loading, error, onDone } = useCreateTaskMutation({
- *   variables: {
- *   },
- * });
- */
-export function useCreateTaskMutation(
-  options: VueApolloComposable.UseMutationOptionsNoVariables<CreateTaskMutation, CreateTaskMutationVariables> = {}
-) {
-  return VueApolloComposable.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, options);
-}
-export type CreateTaskMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  CreateTaskMutation,
-  CreateTaskMutationVariables
->;
