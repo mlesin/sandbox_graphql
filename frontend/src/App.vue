@@ -34,7 +34,8 @@
     </v-app-bar>
 
     <v-main>
-      <hello-world />
+      <!-- <hello-world /> -->
+      <incrementor />
     </v-main>
   </v-app>
 </template>
@@ -42,12 +43,14 @@
 <script lang="ts">
 import { defineComponent } from "@vue/composition-api";
 import HelloWorld from "./components/HelloWorld.vue";
+import Incrementor from "@/components/Incrementor.vue";
 
 export default defineComponent({
   name: "App",
 
   components: {
-    HelloWorld
+    HelloWorld,
+    Incrementor
   },
 
   data: () => ({
