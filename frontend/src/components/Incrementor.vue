@@ -4,14 +4,13 @@
     <v-btn @click="inc.actions.decrement">Decrement</v-btn>
     <div>Count is: {{ inc.state.count }}, double is: {{ inc.state.double }}</div>
     <div>Mouse coords are ({{ mp.x }},{{ mp.y }})</div>
-    <div v-for="item in fl.list" :key="item" ref="divs">-={{ item }}=-</div>
-    <v-btn @click="fl.check">Check</v-btn>
+    <div v-for="item in list" :key="item" ref="divs">-={{ item }}=-</div>
+    <v-btn @click="check">Check</v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate, getCurrentInstance } from "@vue/composition-api";
-import { VueConstructor } from "vue/types/umd";
+import { defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate } from "@vue/composition-api";
 
 function incLogic() {
   onMounted(() => {
@@ -56,16 +55,16 @@ function useMousePosition() {
   return { x, y };
 }
 
-function forLogic(vm: InstanceType<VueConstructor> | null) {
+function forLogic() {
   const list = reactive([1, 2, 3]);
-  let divs = reactive([] as HTMLElement[]);
+  const divs = ref([] as HTMLElement[]);
 
   onBeforeUpdate(() => {
-    divs = [];
+    divs.value = [];
   });
 
   function check() {
-    (vm?.$refs.divs as Array<HTMLElement>).forEach((div, i) => {
+    divs.value.forEach((div, i) => {
       div.textContent = String(i);
     });
   }
@@ -78,13 +77,14 @@ export default defineComponent({
   setup() {
     const inc = incLogic();
     const mp = useMousePosition();
-    const vm = getCurrentInstance();
-    const fl = forLogic(vm);
+    const { list, divs, check } = forLogic();
 
     return {
       inc,
       mp,
-      fl
+      list,
+      divs,
+      check
     };
   }
 });
