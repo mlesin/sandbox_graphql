@@ -1,7 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
-// import apolloClient from "./apollo_client";
 import VueCompositionAPI from "@vue/composition-api";
 import VueApollo from "vue-apollo";
 import { createProvider } from "./vue-apollo";

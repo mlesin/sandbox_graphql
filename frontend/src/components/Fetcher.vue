@@ -1,6 +1,6 @@
 <template>
   <div>
-    Here is the result: "{{ result }}""
+    Here is the result: "{{ $apolloData }}""
     <!-- <div v-for="task in result.allTasks" :key="task.id">
       {{ task.task }}
     </div> -->
@@ -18,7 +18,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      result: "QQQ"
+      result: ""
     };
   },
   setup() {

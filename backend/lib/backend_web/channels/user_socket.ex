@@ -1,6 +1,9 @@
 defmodule SandboxWeb.UserSocket do
   use Phoenix.Socket
 
+  use Absinthe.Phoenix.Socket,
+    schema: SandboxWeb.Schema
+
   ## Channels
   # channel "room:*", SandboxWeb.RoomChannel
 
@@ -16,7 +19,11 @@ defmodule SandboxWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(_params, socket, _connect_info) do
+  def connect(params, socket, connect_info) do
+    IO.puts("socket connect")
+    IO.inspect(params)
+    IO.inspect(socket)
+    IO.inspect(connect_info)
     {:ok, socket}
   end
 
