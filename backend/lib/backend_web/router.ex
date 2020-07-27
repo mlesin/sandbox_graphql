@@ -13,6 +13,6 @@ defmodule SandboxWeb.Router do
       interface: :simple,
       context: %{pubsub: SandboxWeb.Endpoint}
 
-    forward "/", Absinthe.Plug, schema: SandboxWeb.Schema
+    forward "/graphql", Absinthe.Plug, schema: SandboxWeb.Schema
   end
 end
