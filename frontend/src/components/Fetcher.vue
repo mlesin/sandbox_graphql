@@ -1,22 +1,29 @@
 <template>
   <div>
-    <div v-if="loading">Loading...</div>
-    <div v-else>
-      <div v-for="task in result.allTasks" :key="task.id">
-        {{ task.task }}
-      </div>
-    </div>
+    Here is the result: "{{ result }}""
+    <!-- <div v-for="task in result.allTasks" :key="task.id">
+      {{ task.task }}
+    </div> -->
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-import { useGetAllTasksQuery } from "../generated/graphql";
+// import { defineComponent } from "@vue/composition-api";
+import Vue from "vue";
+import { GetAllTasksDocument } from "../generated/graphql";
 
-export default defineComponent({
+export default Vue.extend({
+  apollo: {
+    result: GetAllTasksDocument
+  },
+  data() {
+    return {
+      result: "QQQ"
+    };
+  },
   setup() {
-    const { result, loading } = useGetAllTasksQuery();
-    return { result, loading };
+    // const { result, loading } = GetAllTasksQuery();
+    // return { result, loading };
   }
 });
 </script>
