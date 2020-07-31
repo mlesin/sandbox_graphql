@@ -19,12 +19,20 @@ defmodule SandboxWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(params, socket, connect_info) do
+  def connect(params, socket, _connect_info) do
     IO.puts("socket connect")
-    IO.inspect(params)
     IO.inspect(socket)
-    IO.inspect(connect_info)
+
+    socket =
+      Absinthe.Phoenix.Socket.put_options(socket,
+        context: %{current_user: find_current_user(params)}
+      )
+
     {:ok, socket}
+  end
+
+  defp find_current_user(_params) do
+    "wooahhahha"
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

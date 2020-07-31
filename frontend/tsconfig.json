@@ -13,7 +13,6 @@
     "types": [
       "webpack-env",
       "jest",
-      "vue-cli-plugin-apollo",
       "vuetify"
     ],
     "paths": {
