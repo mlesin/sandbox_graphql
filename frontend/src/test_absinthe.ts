@@ -1,9 +1,7 @@
 import {Socket} from "phoenix";
-import create from "./absinthe/socket/create";
-import {GqlRequest} from "./absinthe/socket/utils-graphql/types";
 import gql from "graphql-tag";
 import {DocumentNode} from "graphql";
-import {send} from "./absinthe/socket";
+import {create, send, observe, GqlRequest} from "./absinthe/socket";
 
 const absintheSocket = create(new Socket("ws://localhost:4000/socket"));
 const operation: DocumentNode = gql`
@@ -31,7 +29,19 @@ const request: GqlRequest<any> = {
 };
 const notifier = send(absintheSocket, request);
 
-console.log(notifier);
+console.log("###NOTIFIER:", notifier);
+
+const logEvent = (eventName: string) => (...args: any[]) => console.log(eventName, ...args);
+
+const updatedNotifier = observe(absintheSocket, notifier, {
+  onAbort: logEvent("abort"),
+  onError: logEvent("error"),
+  onStart: logEvent("open"),
+  onResult: logEvent("result"),
+});
+
+console.log("###NOTIFIER UPDATED:", updatedNotifier);
+
 /*
 An unknown error occurred during parsing:
  key :body not found in: 
