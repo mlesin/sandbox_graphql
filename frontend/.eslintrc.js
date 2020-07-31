@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
   },
   extends: [
     "plugin:vue/essential",
@@ -9,11 +9,11 @@ module.exports = {
     "vuetify",
     "@vue/typescript/recommended",
     "@vue/prettier",
-    "@vue/prettier/@typescript-eslint"
+    "@vue/prettier/@typescript-eslint",
   ],
   parserOptions: {
     ecmaVersion: 2020,
-    project: ["tsconfig.json"]
+    project: ["tsconfig.json"],
   },
   rules: {
     "vuetify/no-deprecated-classes": "error",
@@ -51,26 +51,29 @@ module.exports = {
         trailingComma: "es5",
       },
     ],
-    "comma-dangle": ["error", {
-      "arrays": "always-multiline",
-      "objects": "always-multiline",
-      "imports": "always-multiline",
-      "exports": "always-multiline",
-      "functions": "ignore"
-    }]
+    "comma-dangle": [
+      "error",
+      {
+        arrays: "always-multiline",
+        objects: "always-multiline",
+        imports: "always-multiline",
+        exports: "always-multiline",
+        functions: "ignore",
+      },
+    ],
   },
   overrides: [
     {
       files: ["**/__tests__/*.{j,t}s?(x)", "**/tests/unit/**/*.spec.{j,t}s?(x)"],
       env: {
-        jest: true
-      }
+        jest: true,
+      },
     },
     {
       files: ["src/generated/*.ts"],
       rules: {
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    }
-  ]
+        "@typescript-eslint/no-explicit-any": "off",
+      },
+    },
+  ],
 };

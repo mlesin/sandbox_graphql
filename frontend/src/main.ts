@@ -15,5 +15,5 @@ Vue.config.productionTip = false;
 /* const app = */ new Vue({
   vuetify,
   // apolloProvider: createProvider(),
-  render: h => h(App)
+  render: h => h(App),
 }).$mount("#app");

@@ -7,13 +7,13 @@
 module.exports = {
   client: {
     // service: env.VUE_APP_APOLLO_ENGINE_SERVICE,
-    includes: ["src/**/*.{js,jsx,ts,tsx,vue,gql}"]
+    includes: ["src/**/*.{js,jsx,ts,tsx,vue,gql}"],
     // localSchemaFile: "./graphql.schema.json"
   },
   service: {
     //   name: env.VUE_APP_APOLLO_ENGINE_SERVICE,
-    localSchemaFile: "./graphql.schema.json"
-  }
+    localSchemaFile: "./graphql.schema.json",
+  },
   // engine: {
   //   endpoint: process.env.APOLLO_ENGINE_API_ENDPOINT,
   //   apiKey: env.VUE_APP_APOLLO_ENGINE_KEY

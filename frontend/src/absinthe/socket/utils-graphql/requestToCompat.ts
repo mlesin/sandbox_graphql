@@ -1,4 +1,4 @@
-import type {GqlRequest, GqlRequestCompat} from "./types";
+import {GqlRequest, GqlRequestCompat} from "./types";
 
 /**
  * Creates a GqlRequest using given GqlRequestCompat

@@ -18,12 +18,12 @@ export default Vue.extend({
   // },
   data() {
     return {
-      result: ""
+      result: "",
     };
   },
   setup() {
     // const { result, loading } = GetAllTasksQuery();
     // return { result, loading };
-  }
+  },
 });
 </script>
