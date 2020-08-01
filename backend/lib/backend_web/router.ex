@@ -20,7 +20,7 @@ defmodule SandboxWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: SandboxWeb.Schema,
-      interface: :simple,
+      interface: :advanced,
       context: %{pubsub: SandboxWeb.Endpoint},
       socket: SandboxWeb.UserSocket
 

@@ -25,4 +25,37 @@ defmodule SandboxWeb.Schema do
       resolve(&TasksResolver.create_task/3)
     end
   end
+
+  subscription do
+    @desc "Subscribes for task additions"
+    field :task_added, :task do
+      # arg(:task, non_null(:string))
+
+      config(fn args, _ ->
+        IO.puts("in subscription config")
+        IO.inspect(args)
+        {:ok, topic: "*", context_id: "global"}
+      end)
+
+      # this tells Absinthe to run any subscriptions with this field every time
+      # the :create_task mutation happens.
+      # It also has a topic function used to find what subscriptions care about
+      # this particular comment
+      trigger(:create_task,
+        topic: fn task ->
+          IO.puts("in subscription trigger")
+          IO.inspect(task)
+          "*"
+        end
+      )
+
+      # resolve(fn task, _, _ ->
+      #   # this function is often not actually necessary, as the default resolver
+      #   # for subscription functions will just do what we're doing here.
+      #   # The point is, subscription resolvers receive whatever value triggers
+      #   # the subscription, in our case a comment.
+      #   {:ok, task}
+      # end)
+    end
+  end
 end
