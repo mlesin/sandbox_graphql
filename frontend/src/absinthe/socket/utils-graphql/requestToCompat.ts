@@ -1,4 +1,5 @@
 import {GqlRequest, GqlRequestCompat} from "./types";
+import {print} from "graphql";
 
 /**
  * Creates a GqlRequest using given GqlRequestCompat
@@ -8,6 +9,7 @@ import {GqlRequest, GqlRequestCompat} from "./types";
  * @return {GqlRequestCompat<Variables>}
  *
  * @example
+ * // wrap operation with gql macro
  * const operation = `
  *   query userQuery($userId: ID!) {
  *     user(userId: $userId) {
@@ -20,9 +22,6 @@ import {GqlRequest, GqlRequestCompat} from "./types";
  * console.log(requestToCompat({operation, variables: {userId: 10}}));
  * // {query: "...", variables: {userId: 10}}
  */
-const requestToCompat = <V>({operation: query, variables}: GqlRequest<V>): GqlRequestCompat<V> => {
-  const q = query.loc!.source.body;
-  return variables ? {query: q, variables} : {query: q};
-};
+const requestToCompat = <V>({operation: query, variables}: GqlRequest<V>): GqlRequestCompat<V> => ({query: print(query), variables});
 
 export default requestToCompat;

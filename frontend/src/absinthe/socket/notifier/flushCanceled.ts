@@ -3,12 +3,12 @@ import {createCancelEvent} from "./event/eventCreators";
 
 import {Notifier} from "./types";
 
-const clearCanceled = <R, V>(notifier: Notifier<R, V>) => ({
+const clearCanceled = (notifier: Notifier) => ({
   ...notifier,
   canceledObservers: [],
 });
 
-const flushCanceled = <R, V>(notifier: Notifier<R, V>): Notifier<R, V> =>
+const flushCanceled = (notifier: Notifier): Notifier =>
   notifier.canceledObservers.length > 0 ? clearCanceled(notifyCanceled(notifier, createCancelEvent())) : notifier;
 
 export default flushCanceled;

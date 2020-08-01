@@ -3,7 +3,7 @@ import updateNotifiers from "./updateNotifiers";
 import {AbsintheSocket} from "./types";
 import {Notifier} from "./notifier/types";
 
-const refreshNotifier = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>): Notifier<R, V> => {
+const refreshNotifier = (absintheSocket: AbsintheSocket, notifier: Notifier): Notifier => {
   updateNotifiers(absintheSocket, notifierRefresh(notifier));
 
   return notifier;

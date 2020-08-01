@@ -1,6 +1,6 @@
 import {AbortEvent, CancelEvent, ErrorEvent, Notifier, ResultEvent, StartEvent} from "../types";
 
-const createStartEvent = <R, V, P extends Notifier<R, V>>(payload: P): StartEvent<R, V, P> => ({
+const createStartEvent = <P extends Notifier>(payload: P): StartEvent<P> => ({
   payload,
   tag: "onStart",
 });

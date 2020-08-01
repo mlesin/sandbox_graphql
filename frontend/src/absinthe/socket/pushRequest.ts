@@ -10,22 +10,22 @@ import {subscribe} from "./subscription";
 import {AbsintheSocket} from "./types";
 import {Notifier} from "./notifier/types";
 
-const setNotifierRequestStatusSent = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) =>
+const setNotifierRequestStatusSent = (absintheSocket: AbsintheSocket, notifier: Notifier) =>
   refreshNotifier(absintheSocket, {
     ...notifier,
     requestStatus: requestStatuses.sent,
   });
 
-const onQueryOrMutationSucceed = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) => (response: GqlResponse<R>) =>
+const onQueryOrMutationSucceed = (absintheSocket: AbsintheSocket, notifier: Notifier) => (response: GqlResponse) =>
   updateNotifiers(
     absintheSocket,
     notifierRemove(notifierNotifyResultEvent(setNotifierRequestStatusSent(absintheSocket, notifier), response.data))
   );
 
-const pushQueryOrMutation = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) =>
+const pushQueryOrMutation = (absintheSocket: AbsintheSocket, notifier: Notifier) =>
   pushRequestUsing(absintheSocket, notifierNotifyStartEvent(notifier), onQueryOrMutationSucceed);
 
-const pushRequest = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>): AbsintheSocket<R, V> => {
+const pushRequest = (absintheSocket: AbsintheSocket, notifier: Notifier): AbsintheSocket => {
   if (notifier.operationType === "subscription") {
     return subscribe(absintheSocket, notifier);
   }

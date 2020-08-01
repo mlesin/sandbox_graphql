@@ -22,7 +22,7 @@ export interface GqlError {
   locations?: Array<GqlErrorLocation>;
 }
 
-export interface GqlResponse<R> {
-  data?: R;
+export interface GqlResponse {
+  data?: unknown;
   errors?: Array<GqlError>;
 }

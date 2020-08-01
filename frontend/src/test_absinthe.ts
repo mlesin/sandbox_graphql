@@ -1,10 +1,9 @@
 import {Socket} from "phoenix";
 import gql from "graphql-tag";
-import {DocumentNode} from "graphql";
-import {create, send, observe, GqlRequest} from "./absinthe/socket";
+import * as withAbsintheSocket from "./absinthe/socket";
 
-const absintheSocket = create(new Socket("ws://localhost:4000/socket"));
-const operation: DocumentNode = gql`
+const absintheSocket = withAbsintheSocket.create(new Socket("ws://localhost:4000/socket"));
+const operation = gql`
   # subscription userSubscription($userId: ID!) {
   #   user(userId: $userId) {
   #     id
@@ -23,88 +22,23 @@ console.log(operation);
 
 // This example uses a subscription, but the functionallity is the same for
 // all operation types (queries, mutations and subscriptions)
-const request: GqlRequest<any> = {
+const request: withAbsintheSocket.GqlRequest<{userId: number}> = {
   operation,
-  // variables: {userId: 10},
+  variables: {userId: 10},
 };
-const notifier = send(absintheSocket, request);
+const notifier = withAbsintheSocket.send(absintheSocket, request);
 
 console.log("###NOTIFIER:", notifier);
 
-const logEvent = (eventName: string) => (...args: any[]) => console.log(eventName, ...args);
-
-const updatedNotifier = observe(absintheSocket, notifier, {
-  onAbort: logEvent("abort"),
-  onError: logEvent("error"),
-  onStart: logEvent("open"),
-  onResult: logEvent("result"),
+const updatedNotifier = withAbsintheSocket.observe(absintheSocket, notifier, {
+  onAbort: (error: Error) => console.log("Abort observing:", error),
+  onError: (error: Error) => console.log("Got error:", error),
+  onStart: (notifier: withAbsintheSocket.Notifier) => console.log("Start observing:", notifier),
+  onResult: (result: Record<string, unknown>) => {
+    console.log("Got result:", result);
+  },
 });
 
-console.log("###NOTIFIER UPDATED:", updatedNotifier);
-
-/*
-An unknown error occurred during parsing:
- key :body not found in: 
- %{"definitions" => [
-   %{"directives" => [],
-    "kind" => "OperationDefinition",
-    "name" => %{
-      "kind" => "Name", 
-      "value" => "allTasks"
-    }, 
-    "operation" => "query", 
-    "selectionSet" => %{
-      "kind" => "SelectionSet", 
-      "selections" => [
-        %{
-          "arguments" => [], 
-          "directives" => [], 
-          "kind" => "Field", 
-          "name" => %{
-            "kind" => "Name", 
-            "value" => "allTasks"
-          }, 
-          "selectionSet" => %{
-            "kind" => "SelectionSet", 
-            "selections" => [
-              %{
-                "arguments" => [], 
-                "directives" => [], 
-                "kind" => "Field",
-                "name" => %{
-                  "kind" => "Name", 
-                  "value" => "id"
-                }
-              },
-              %{
-                "arguments" => [], 
-                "directives" => [], 
-                "kind" => "Field", 
-                "name" => %{
-                  "kind" => "Name", 
-                  "value" => "task"
-                }
-              },
-              %{
-                "arguments" => [], 
-                "directives" => [], 
-                "kind" => "Field", 
-                "name" => %{
-                  "kind" => "Name", 
-                  "value" => "description"
-                }
-              }
-            ]
-          }
-        }]
-      }, 
-      "variableDefinitions" => []
-    }
-  ], 
-  "kind" => "Document", 
-    "loc" => %{
-      "end" => 201, 
-      "start" => 0
-    }
-  }
-*/
+console.log("###NOTIFIER UPDATED:", updatedNotifier, absintheSocket.channel);
+// withAbsintheSocket.cancel(absintheSocket, updatedNotifier);
+console.log("###AFTER CANCEL:", absintheSocket.channel);

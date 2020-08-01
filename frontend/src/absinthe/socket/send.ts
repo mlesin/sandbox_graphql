@@ -13,7 +13,7 @@ import updateNotifiers from "./updateNotifiers";
 import {AbsintheSocket} from "./types";
 import {Notifier} from "./notifier/types";
 
-const connectOrJoinChannel = <R, V>(absintheSocket: AbsintheSocket<R, V>) => {
+const connectOrJoinChannel = (absintheSocket: AbsintheSocket) => {
   if (absintheSocket.phoenixSocket.isConnected()) {
     joinChannel(absintheSocket);
   } else {
@@ -22,8 +22,8 @@ const connectOrJoinChannel = <R, V>(absintheSocket: AbsintheSocket<R, V>) => {
   }
 };
 
-const sendNew = <R, V>(absintheSocket: AbsintheSocket<R, V>, request: GqlRequest<V>) => {
-  const notifier = notifierCreate<R, V>(request);
+const sendNew = <V>(absintheSocket: AbsintheSocket, request: GqlRequest<V>) => {
+  const notifier = notifierCreate<V>(request);
 
   updateNotifiers(absintheSocket, arrayAppend([notifier]));
 
@@ -36,18 +36,18 @@ const sendNew = <R, V>(absintheSocket: AbsintheSocket<R, V>, request: GqlRequest
   return notifier;
 };
 
-const updateCanceledReactivate = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) =>
+const updateCanceledReactivate = (absintheSocket: AbsintheSocket, notifier: Notifier) =>
   refreshNotifier(absintheSocket, notifierReactivate(notifier));
 
-const updateCanceled = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) =>
+const updateCanceled = (absintheSocket: AbsintheSocket, notifier: Notifier) =>
   notifier.requestStatus === requestStatuses.sending
     ? updateCanceledReactivate(absintheSocket, notifierFlushCanceled(notifier))
     : updateCanceledReactivate(absintheSocket, notifier);
 
-const updateIfCanceled = <R, V>(absintheSocket: AbsintheSocket<R, V>, notifier: Notifier<R, V>) =>
+const updateIfCanceled = (absintheSocket: AbsintheSocket, notifier: Notifier) =>
   notifier.isActive ? notifier : updateCanceled(absintheSocket, notifier);
 
-const getExistentIfAny = <R, V>(absintheSocket: AbsintheSocket<R, V>, request: GqlRequest<V>) => {
+const getExistentIfAny = <V>(absintheSocket: AbsintheSocket, request: GqlRequest<V>) => {
   const notifier = absintheSocket.notifiers.find(ntf => isDeepEqual(ntf.request, request));
   return notifier && updateIfCanceled(absintheSocket, notifier);
 };
@@ -76,7 +76,7 @@ const getExistentIfAny = <R, V>(absintheSocket: AbsintheSocket<R, V>, request: G
  *   variables: {userId: 10}
  * });
  */
-const send = <R, V>(absintheSocket: AbsintheSocket<R, V>, request: GqlRequest<V>): Notifier<R, V> =>
+const send = <V>(absintheSocket: AbsintheSocket, request: GqlRequest<V>): Notifier =>
   getExistentIfAny(absintheSocket, request) || sendNew(absintheSocket, request);
 
 export default send;
