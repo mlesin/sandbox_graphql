@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-import { useGetAllTasksQuery } from "../generated/graphql";
+import {defineComponent} from "@vue/composition-api";
+import {useGetAllTasksQuery} from "../generated/graphql";
 
 export default defineComponent({
   setup() {
-    const { result, loading } = useGetAllTasksQuery();
-    return { result, loading };
-  }
+    const {result, loading} = useGetAllTasksQuery();
+    return {result, loading};
+  },
 });
 </script>

@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate } from "@vue/composition-api";
+import {defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate} from "@vue/composition-api";
 
 function incLogic() {
   onMounted(() => {
@@ -29,8 +29,8 @@ function incLogic() {
   }
 
   return {
-    state: { count, double },
-    actions: { increment, decrement }
+    state: {count, double},
+    actions: {increment, decrement},
   };
 }
 
@@ -52,7 +52,7 @@ function useMousePosition() {
     window.removeEventListener("mousemove", update);
   });
 
-  return { x, y };
+  return {x, y};
 }
 
 function forLogic() {
@@ -69,7 +69,7 @@ function forLogic() {
     });
   }
 
-  return { list, divs, check };
+  return {list, divs, check};
 }
 
 export default defineComponent({
@@ -77,15 +77,15 @@ export default defineComponent({
   setup() {
     const inc = incLogic();
     const mp = useMousePosition();
-    const { list, divs, check } = forLogic();
+    const {list, divs, check} = forLogic();
 
     return {
       inc,
       mp,
       list,
       divs,
-      check
+      check,
     };
-  }
+  },
 });
 </script>
