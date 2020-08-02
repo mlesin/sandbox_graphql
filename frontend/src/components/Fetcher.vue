@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <v-container>
     <div v-if="loading">Loading...</div>
-    <div v-else>
-      <div v-for="task in result.allTasks" :key="task.id">
-        {{ task.task }}
-      </div>
-    </div>
-  </div>
+    <v-row v-else>
+      <v-col v-for="task in result.allTasks" :key="task.id">
+        <v-card>{{ task.task }}</v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
