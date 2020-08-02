@@ -1,6 +1,9 @@
 defmodule SandboxWeb.UserSocket do
   use Phoenix.Socket
 
+  use Absinthe.Phoenix.Socket,
+    schema: SandboxWeb.Schema
+
   ## Channels
   # channel "room:*", SandboxWeb.RoomChannel
 
@@ -16,8 +19,20 @@ defmodule SandboxWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(_params, socket, _connect_info) do
+  def connect(params, socket, _connect_info) do
+    IO.puts("socket connect")
+    IO.inspect(socket)
+
+    socket =
+      Absinthe.Phoenix.Socket.put_options(socket,
+        context: %{current_user: find_current_user(params)}
+      )
+
     {:ok, socket}
+  end
+
+  defp find_current_user(_params) do
+    "wooahhahha"
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

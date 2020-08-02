@@ -13,7 +13,7 @@ config :backend,
 
 # Configures the endpoint
 config :backend, SandboxWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "127.0.0.1"],
   secret_key_base: "qBDNMg0r8s+UO0A5Uma9D218EnQirOYsGP3EOAfL+Xwd5gagNL1toJQyDRGIkHoM",
   render_errors: [view: SandboxWeb.ErrorView, accepts: ~w(json), layout: false],
   pubsub_server: Sandbox.PubSub,
