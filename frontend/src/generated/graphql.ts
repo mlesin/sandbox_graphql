@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import {gql} from "@apollo/client";
 import * as VueApolloComposable from "@vue/apollo-composable";
 import * as VueCompositionApi from "@vue/composition-api";
 export type Maybe<T> = T | null;
