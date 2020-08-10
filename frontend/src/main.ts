@@ -4,12 +4,7 @@ import vuetify from "./plugins/vuetify";
 import apolloClient from "./apollo_client";
 import VueCompositionAPI, {provide} from "@vue/composition-api";
 import {DefaultApolloClient} from "@vue/apollo-composable";
-// import VueApollo from "@vue/apollo-option";
-// import VueApolloComponents from "@vue/apollo-components";
 Vue.use(VueCompositionAPI);
-
-// Vue.use(VueApollo);
-// Vue.use(VueApolloComponents);
 
 Vue.config.productionTip = false;
 

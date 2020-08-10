@@ -1,3 +1,6 @@
 {
-    "elixirLS.projectDir": "backend"
+    "files.exclude": {
+        "backend": true,
+        "frontend": true
+    }
 }

@@ -2,7 +2,7 @@ module.exports = {
   configureWebpack: config => {
     config.devtool = "source-map";
   },
-  // chainWebpack: config => config.resolve.symlinks(false),
+  chainWebpack: config => config.resolve.symlinks(false),
   // chainWebpack: config => {
   //   // GraphQL Loader
   //   config.module
