@@ -11,8 +11,8 @@ defmodule SandboxWeb.TasksResolver do
       {:ok, task} ->
         {:ok, task}
 
-      _error ->
-        {:error, "could not create task"}
+      error ->
+        {:error, "Could not create task: #{inspect(error)}"}
     end
   end
 end

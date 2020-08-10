@@ -31,6 +31,7 @@
 
     <v-main>
       <!-- <incrementor /> -->
+      <pusher />
       <fetcher />
     </v-main>
   </v-app>
@@ -40,6 +41,7 @@
 import {defineComponent} from "@vue/composition-api";
 import Incrementor from "@/components/Incrementor.vue";
 import Fetcher from "@/components/Fetcher.vue";
+import Pusher from "@/components/Pusher.vue";
 
 export default defineComponent({
   name: "App",
@@ -47,6 +49,7 @@ export default defineComponent({
   components: {
     Incrementor,
     Fetcher,
+    Pusher,
   },
 
   data: () => ({

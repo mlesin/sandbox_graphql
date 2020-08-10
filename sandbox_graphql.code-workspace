@@ -3,14 +3,14 @@
 		{
 			"name": "frontend",
 			"path": "frontend"
-		},		
-		{
-			"name": "backend",
-			"path": "backend"
 		},
 		{
 			"name": "sandbox_graphql",
 			"path": "."
+		},
+		{
+			"name": "backend",
+			"path": "backend"
 		}
 	],
 	"settings": {}

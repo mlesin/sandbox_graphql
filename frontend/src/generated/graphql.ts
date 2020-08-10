@@ -49,7 +49,10 @@ export type GetAllTasksQuery = {__typename?: "RootQueryType"} & {
   allTasks: Array<{__typename?: "Task"} & Pick<Task, "id" | "task" | "description">>;
 };
 
-export type CreateTaskMutationVariables = Exact<{[key: string]: never}>;
+export type CreateTaskMutationVariables = Exact<{
+  task: Scalars["String"];
+  description: Scalars["String"];
+}>;
 
 export type CreateTaskMutation = {__typename?: "RootMutationType"} & {
   createTask?: Maybe<{__typename?: "Task"} & Pick<Task, "id" | "task" | "description">>;
@@ -90,8 +93,8 @@ export function useGetAllTasksQuery(
 }
 export type GetAllTasksQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAllTasksQuery, GetAllTasksQueryVariables>;
 export const CreateTaskDocument = gql`
-  mutation createTask {
-    createTask(task: "Some task", description: "Some description") {
+  mutation createTask($task: String!, $description: String!) {
+    createTask(task: $task, description: $description) {
       id
       task
       description
@@ -112,11 +115,15 @@ export const CreateTaskDocument = gql`
  * @example
  * const { mutate, loading, error, onDone } = useCreateTaskMutation({
  *   variables: {
+ *      task: // value for 'task'
+ *      description: // value for 'description'
  *   },
  * });
  */
 export function useCreateTaskMutation(
-  options: VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables> = {}
+  options:
+    | VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>
+    | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>>
 ) {
   return VueApolloComposable.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, options);
 }

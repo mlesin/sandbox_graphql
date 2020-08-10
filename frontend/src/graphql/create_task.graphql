@@ -1,5 +1,5 @@
-mutation createTask {
-  createTask(task:"Some task", description:"Some description") {
+mutation createTask ($task: String!, $description: String!) {
+  createTask(task: $task, description: $description) {
     id
     task
     description
