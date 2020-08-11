@@ -2,6 +2,7 @@
     "elixirLS.projectDir": "backend",
     "files.exclude": {
         "backend": true,
-        "frontend": true
+        "frontend": true,
+        "gql-server": true
     }
 }

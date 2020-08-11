@@ -38,13 +38,13 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "@vue/composition-api";
-import Incrementor from "@/components/Incrementor.vue";
-import Fetcher from "@/components/Fetcher.vue";
-import Pusher from "@/components/Pusher.vue";
+import { defineComponent } from '@vue/composition-api';
+import Incrementor from '@/components/Incrementor.vue';
+import Fetcher from '@/components/Fetcher.vue';
+import Pusher from '@/components/Pusher.vue';
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
 
   components: {
     Incrementor,

@@ -12,20 +12,20 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, reactive} from "@vue/composition-api";
-import {useCreateTaskMutation} from "../generated/graphql";
-import {useApolloClient} from "@vue/apollo-composable";
+import { defineComponent, reactive } from '@vue/composition-api';
+import { useCreateTaskMutation } from '../generated/graphql';
+// import { useApolloClient } from '@vue/apollo-composable';
 
 export default defineComponent({
   setup() {
     const formData = reactive({
-      task: "",
-      description: "",
+      task: '',
+      description: '',
     });
 
-    const {resolveClient} = useApolloClient();
+    // const { resolveClient } = useApolloClient();
 
-    const {mutate, loading, error, onDone} = useCreateTaskMutation(() => ({
+    const { mutate, loading, error, onDone } = useCreateTaskMutation(() => ({
       variables: {
         task: formData.task,
         description: formData.description,
@@ -40,10 +40,10 @@ export default defineComponent({
 
     onDone(async result => {
       if (!result?.data?.createTask) return;
-      formData.task = "";
-      formData.description = "";
-      const apolloClient = resolveClient();
-      const {id, task, description} = result.data.createTask;
+      formData.task = '';
+      formData.description = '';
+      // const apolloClient = resolveClient();
+      // const { id, task, description } = result.data.createTask;
       // Update cache
       // apolloClient.writeQuery({
       //   query: USER_CURRENT,
@@ -53,7 +53,7 @@ export default defineComponent({
       // });
     });
 
-    return {formData, mutate, loading, error};
+    return { formData, mutate, loading, error };
   },
 });
 </script>

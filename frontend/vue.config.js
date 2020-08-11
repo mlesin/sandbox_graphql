@@ -1,6 +1,6 @@
 module.exports = {
   configureWebpack: config => {
-    config.devtool = "source-map";
+    config.devtool = 'source-map';
   },
   chainWebpack: config => config.resolve.symlinks(false),
   // chainWebpack: config => {
@@ -12,5 +12,5 @@ module.exports = {
   //     .loader("graphql-tag/loader")
   //     .end();
   // },
-  transpileDependencies: ["vuetify"],
+  transpileDependencies: ['vuetify'],
 };

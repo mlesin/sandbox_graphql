@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate} from "@vue/composition-api";
+import { defineComponent, computed, ref, onMounted, onUnmounted, reactive, onBeforeUpdate } from '@vue/composition-api';
 
 function incLogic() {
   onMounted(() => {
-    console.log("onMounted was called for incrementor logic");
+    console.log('onMounted was called for incrementor logic');
   });
 
   const count = ref(0);
@@ -29,8 +29,8 @@ function incLogic() {
   }
 
   return {
-    state: {count, double},
-    actions: {increment, decrement},
+    state: { count, double },
+    actions: { increment, decrement },
   };
 }
 
@@ -44,15 +44,15 @@ function useMousePosition() {
   }
 
   onMounted(() => {
-    console.log("onMounted was called for useMousePosition logic");
-    window.addEventListener("mousemove", update);
+    console.log('onMounted was called for useMousePosition logic');
+    window.addEventListener('mousemove', update);
   });
 
   onUnmounted(() => {
-    window.removeEventListener("mousemove", update);
+    window.removeEventListener('mousemove', update);
   });
 
-  return {x, y};
+  return { x, y };
 }
 
 function forLogic() {
@@ -69,15 +69,15 @@ function forLogic() {
     });
   }
 
-  return {list, divs, check};
+  return { list, divs, check };
 }
 
 export default defineComponent({
-  name: "Incrementor",
+  name: 'Incrementor',
   setup() {
     const inc = incLogic();
     const mp = useMousePosition();
-    const {list, divs, check} = forLogic();
+    const { list, divs, check } = forLogic();
 
     return {
       inc,

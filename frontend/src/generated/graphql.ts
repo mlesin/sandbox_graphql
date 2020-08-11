@@ -1,8 +1,8 @@
-import gql from "graphql-tag";
-import * as VueApolloComposable from "@vue/apollo-composable";
-import * as VueCompositionApi from "@vue/composition-api";
+import gql from 'graphql-tag';
+import * as VueApolloComposable from '@vue/apollo-composable';
+import * as VueCompositionApi from '@vue/composition-api';
 export type Maybe<T> = T | null;
-export type Exact<T extends {[key: string]: unknown}> = {[K in keyof T]: T[K]};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type ReactiveFunction<TParam> = () => TParam;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -14,48 +14,48 @@ export type Scalars = {
 };
 
 export type RootMutationType = {
-  __typename?: "RootMutationType";
+  __typename?: 'RootMutationType';
   /** Create a new task */
   createTask?: Maybe<Task>;
 };
 
 export type RootMutationTypeCreateTaskArgs = {
-  description: Scalars["String"];
-  task: Scalars["String"];
+  description: Scalars['String'];
+  task: Scalars['String'];
 };
 
 export type RootQueryType = {
-  __typename?: "RootQueryType";
+  __typename?: 'RootQueryType';
   /** Get all tasks */
   allTasks: Array<Task>;
 };
 
 export type RootSubscriptionType = {
-  __typename?: "RootSubscriptionType";
+  __typename?: 'RootSubscriptionType';
   /** Subscribes for task additions */
   taskAdded?: Maybe<Task>;
 };
 
 export type Task = {
-  __typename?: "Task";
-  description: Scalars["String"];
-  id: Scalars["ID"];
-  task: Scalars["String"];
+  __typename?: 'Task';
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  task: Scalars['String'];
 };
 
-export type GetAllTasksQueryVariables = Exact<{[key: string]: never}>;
+export type GetAllTasksQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetAllTasksQuery = {__typename?: "RootQueryType"} & {
-  allTasks: Array<{__typename?: "Task"} & Pick<Task, "id" | "task" | "description">>;
+export type GetAllTasksQuery = { __typename?: 'RootQueryType' } & {
+  allTasks: Array<{ __typename?: 'Task' } & Pick<Task, 'id' | 'task' | 'description'>>;
 };
 
 export type CreateTaskMutationVariables = Exact<{
-  task: Scalars["String"];
-  description: Scalars["String"];
+  task: Scalars['String'];
+  description: Scalars['String'];
 }>;
 
-export type CreateTaskMutation = {__typename?: "RootMutationType"} & {
-  createTask?: Maybe<{__typename?: "Task"} & Pick<Task, "id" | "task" | "description">>;
+export type CreateTaskMutation = { __typename?: 'RootMutationType' } & {
+  createTask?: Maybe<{ __typename?: 'Task' } & Pick<Task, 'id' | 'task' | 'description'>>;
 };
 
 export const GetAllTasksDocument = gql`
@@ -87,7 +87,7 @@ export function useGetAllTasksQuery(
   options:
     | VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>
     | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>>
-    | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>> = {}
+    | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>> = {},
 ) {
   return VueApolloComposable.useQuery<GetAllTasksQuery, undefined>(GetAllTasksDocument, undefined, options);
 }
@@ -123,7 +123,7 @@ export const CreateTaskDocument = gql`
 export function useCreateTaskMutation(
   options:
     | VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>
-    | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>>
+    | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTaskMutation, CreateTaskMutationVariables>>,
 ) {
   return VueApolloComposable.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, options);
 }

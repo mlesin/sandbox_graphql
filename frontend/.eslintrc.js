@@ -44,13 +44,6 @@ module.exports = {
     "no-useless-concat": 0,
     "prefer-template": "warn",
     "import/prefer-default-export": "warn",
-    "prettier/prettier": [
-      "error",
-      {
-        bracketSpacing: false,
-        trailingComma: "es5",
-      },
-    ],
     "comma-dangle": [
       "error",
       {
