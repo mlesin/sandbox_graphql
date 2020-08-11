@@ -19,6 +19,10 @@ const typeDefs = gql`
   type Query {
     allTasks: [Task]
   }
+
+  type Mutation {
+    createTask(task: String!, description: String!): Task
+  }
 `;
 
 export default typeDefs;

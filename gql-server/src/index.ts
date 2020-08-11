@@ -14,7 +14,6 @@ const configureHttpServer = (httpServer: http.Server) => {
   const apolloServer = new ApolloServer({ typeDefs, resolvers });
 
   apolloServer.applyMiddleware({ app: expressApp });
-
   console.info('Express app created with Apollo middleware');
 
   httpServer.on('request', expressApp);

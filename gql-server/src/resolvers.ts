@@ -1,3 +1,5 @@
+import { IResolvers } from 'apollo-server';
+
 interface Task {
   id: number;
   task: string;
@@ -19,9 +21,16 @@ const tasks: Task[] = [
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves tasks from the "tasks" array above.
-const resolvers = {
+const resolvers: IResolvers = {
   Query: {
     allTasks: (): Task[] => tasks,
+  },
+  Mutation: {
+    createTask: (_parent: unknown, { task, description }: { task: string; description: string }): Task => {
+      const t: Task = { id: 2, task, description };
+      tasks.push(t);
+      return t;
+    },
   },
 };
 
