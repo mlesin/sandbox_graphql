@@ -1,5 +1,7 @@
 import { IResolvers } from 'apollo-server';
 import pubsub from './pubsub';
+import * as A from 'fp-ts/lib/Array';
+import { pipe } from 'fp-ts/lib/function';
 
 const TASK_ADDED = 'TASK_ADDED';
 
@@ -22,6 +24,9 @@ const tasks: Task[] = [
   },
 ];
 
+const getIds = (tasks: Task[]): number[] => A.array.map<Task, number>(tasks, (task) => task.id);
+const findMaxId = (ids: number[]): number => A.array.reduce<number, number>(ids, 0, (prev: number, id: number) => (id > prev ? id : prev));
+
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves tasks from the "tasks" array above.
 const resolvers: IResolvers = {
@@ -30,7 +35,9 @@ const resolvers: IResolvers = {
   },
   Mutation: {
     createTask: (_parent: unknown, { task, description }: { task: string; description: string }): Task => {
-      const t: Task = { id: 2, task, description };
+      if (task.length == 0 || description.length == 0) throw new Error('Task and Description fields should not be empty');
+      const lastId: number = pipe(tasks, getIds, findMaxId);
+      const t: Task = { id: lastId + 1, task, description };
       tasks.push(t);
       pubsub.publish(TASK_ADDED, { taskAdded: t });
       return t;
