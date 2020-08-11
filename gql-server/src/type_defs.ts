@@ -23,6 +23,10 @@ const typeDefs = gql`
   type Mutation {
     createTask(task: String!, description: String!): Task
   }
+
+  type Subscription {
+    taskAdded: Task
+  }
 `;
 
 export default typeDefs;

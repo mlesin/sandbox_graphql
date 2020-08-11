@@ -22,11 +22,8 @@ const configureHttpServer = (httpServer: http.Server) => {
 
 if (!process.httpServer) {
   console.info('Creating HTTP server');
-
   process.httpServer = http.createServer();
-
   configureHttpServer(process.httpServer);
-
   process.httpServer.listen(PORT, () => {
     console.info(`HTTP server ready at http://localhost:${PORT}/graphql`);
     console.info(`Websocket server ready at ws://localhost:${PORT}/graphql`);
@@ -35,9 +32,7 @@ if (!process.httpServer) {
   console.info('Reloading HTTP server');
   process.httpServer.removeAllListeners('upgrade');
   process.httpServer.removeAllListeners('request');
-
   configureHttpServer(process.httpServer);
-
   console.info('HTTP server reloaded');
 }
 
