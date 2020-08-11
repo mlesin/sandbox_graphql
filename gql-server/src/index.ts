@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server');
+import { ApolloServer, gql } from 'apollo-server';
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -6,36 +6,39 @@ const { ApolloServer, gql } = require('apollo-server');
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
+  # This "Task" type defines the queryable fields for every task in our data source.
+  type Task {
+    id: ID!
+    task: String
+    description: String
   }
 
   # The "Query" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
+  # case, the "tasks" query returns an array of zero or more Tasks (defined above).
   type Query {
-    books: [Book]
+    allTasks: [Task]
   }
 `;
 
-const books = [
+const tasks = [
     {
-      title: 'Harry Potter and the Chamber of Secrets',
-      author: 'J.K. Rowling',
+      id: 0,
+      task: 'Выйти покурить',
+      description: 'Интереснейшая задача',
     },
     {
-      title: 'Jurassic Park',
-      author: 'Michael Crichton',
+      id: 1,
+      task: 'Поплевать в потолок',
+      description: 'Желательно прицельно',
     },
   ];
 
 // Resolvers define the technique for fetching the types defined in the
-// schema. This resolver retrieves books from the "books" array above.
+// schema. This resolver retrieves tasks from the "tasks" array above.
 const resolvers = {
     Query: {
-      books: () => books,
+      allTasks: () => tasks,
     },
   };
 
@@ -47,3 +50,8 @@ const server = new ApolloServer({ typeDefs, resolvers });
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
+
+if (module.hot) {
+  module.hot.accept();
+  module.hot.dispose(() => server.stop());
+}
