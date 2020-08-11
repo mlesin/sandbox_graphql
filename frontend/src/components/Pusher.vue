@@ -40,6 +40,8 @@ export default defineComponent({
 
     onDone(async result => {
       if (!result?.data?.createTask) return;
+      formData.task = "";
+      formData.description = "";
       const apolloClient = resolveClient();
       const {id, task, description} = result.data.createTask;
       // Update cache
