@@ -6,16 +6,16 @@ module.exports = {
       {
         exclude: [path.resolve(__dirname, 'node_modules')],
         test: /\.ts$/,
-        use: 'ts-loader'
-      }
-    ]
+        use: 'ts-loader',
+      },
+    ],
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
-  target: 'node'
+  target: 'node',
 };

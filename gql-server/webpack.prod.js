@@ -2,7 +2,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { merge } = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
 const path = require('path');
-
 const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
@@ -10,5 +9,5 @@ module.exports = merge(common, {
   entry: [path.join(__dirname, 'src/index.ts')],
   externals: [nodeExternals({})],
   mode: 'production',
-  plugins: [new CleanWebpackPlugin()]
+  plugins: [new CleanWebpackPlugin()],
 });
