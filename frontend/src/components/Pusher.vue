@@ -27,8 +27,7 @@ export default defineComponent({
 
     const { mutate, loading, error, onDone } = useCreateTaskMutation(() => ({
       variables: {
-        task: formData.task,
-        description: formData.description,
+        ...formData,
       },
     }));
     // const {mutate, loading, error, onDone} = useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument, () => ({

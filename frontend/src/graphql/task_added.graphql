@@ -1,0 +1,7 @@
+subscription TaskAdded {
+  taskAdded {
+    id
+    task
+    description
+  }
+}

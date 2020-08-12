@@ -58,6 +58,12 @@ export type CreateTaskMutation = { __typename?: 'RootMutationType' } & {
   createTask?: Maybe<{ __typename?: 'Task' } & Pick<Task, 'id' | 'task' | 'description'>>;
 };
 
+export type TaskAddedSubscriptionVariables = Exact<{ [key: string]: never }>;
+
+export type TaskAddedSubscription = { __typename?: 'RootSubscriptionType' } & {
+  taskAdded?: Maybe<{ __typename?: 'Task' } & Pick<Task, 'id' | 'task' | 'description'>>;
+};
+
 export const GetAllTasksDocument = gql`
   query getAllTasks {
     allTasks {
@@ -130,4 +136,41 @@ export function useCreateTaskMutation(
 export type CreateTaskMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
   CreateTaskMutation,
   CreateTaskMutationVariables
+>;
+export const TaskAddedDocument = gql`
+  subscription TaskAdded {
+    taskAdded {
+      id
+      task
+      description
+    }
+  }
+`;
+
+/**
+ * __useTaskAddedSubscription__
+ *
+ * To run a query within a Vue component, call `useTaskAddedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useTaskAddedSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useTaskAddedSubscription(
+ *   {
+ *   }
+ * );
+ */
+export function useTaskAddedSubscription(
+  options:
+    | VueApolloComposable.UseSubscriptionOptions<TaskAddedSubscription, TaskAddedSubscriptionVariables>
+    | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<TaskAddedSubscription, TaskAddedSubscriptionVariables>>
+    | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<TaskAddedSubscription, TaskAddedSubscriptionVariables>> = {},
+) {
+  return VueApolloComposable.useSubscription<TaskAddedSubscription, undefined>(TaskAddedDocument, undefined, options);
+}
+export type TaskAddedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<
+  TaskAddedSubscription,
+  TaskAddedSubscriptionVariables
 >;
