@@ -2,11 +2,11 @@
 import { ExecutionResult } from 'graphql/execution/execute';
 import { Observable, Observer } from '@apollo/client/utilities';
 import { Operation } from '@apollo/client/core';
-// import { print } from 'graphql/language/printer';
+import { print } from 'graphql/language/printer';
 import { DocumentNode } from 'graphql/language/ast';
-// import { getOperationAST } from 'graphql/utilities/getOperationAST';
+import { getOperationAST } from 'graphql/utilities/getOperationAST';
 // import $$observable from 'symbol-observable';
-// import MessageTypes from './message-types';
+import MessageTypes from './message-types';
 import * as Phoenix from 'phoenix';
 
 // Defaults
@@ -15,13 +15,13 @@ import * as Phoenix from 'phoenix';
 const ABSINTHE_CHANNEL_NAME = '__absinthe__:control';
 
 // Helpers
-// function isString(value?: unknown): value is string {
-//   return typeof value === 'string';
-// }
+function isString(value?: unknown): value is string {
+  return typeof value === 'string';
+}
 
-// function isObject(value?: unknown): boolean {
-//   return value !== null && typeof value === 'object';
-// }
+function isObject(value?: unknown): boolean {
+  return value !== null && typeof value === 'object';
+}
 /*
 // TODO TO REMOVE
 // export interface Observer<T> {
@@ -52,16 +52,14 @@ export type FormatedError = Error & {
 };
 
 export interface OperationHandler {
-  options: Operation;
+  operation: Operation;
   handler: (error: Error[], result?: unknown) => void;
 }
 
-export interface Operations {
-  [id: string]: OperationHandler;
-}
+export type Operations = Record<string, OperationHandler>;
 
 export interface Middleware {
-  applyMiddleware(options: Operation, next: Function): void;
+  applyMiddleware(operation: Operation, next: Function): void;
 }
 
 export type ConnectionParams = {
@@ -97,12 +95,13 @@ export interface ClientOptions {
 export class SubscriptionClient {
   private phxSocket: Phoenix.Socket;
   private phxChannel: Phoenix.Channel;
-  // public operations: Operations;
-  // private nextOperationId: number;
+  private phxJoined = false;
+  public operations: Operations = {};
+  private nextOperationId = 0;
   // private connectionParams: Function;
   // private minWsTimeout: number;
   // private wsTimeout: number;
-  // private unsentMessagesQueue: Array<unknown>; // queued messages while websocket is opening.
+  private unsentMessagesQueue: Array<unknown> = []; // queued messages while websocket is opening.
   // private reconnect: boolean;
   // private reconnecting: boolean;
   // private reconnectionAttempts: number;
@@ -117,7 +116,7 @@ export class SubscriptionClient {
   // private tryReconnectTimeoutId: unknown;
   // private checkConnectionIntervalId: unknown;
   // private maxConnectTimeoutId: unknown;
-  // private middlewares: Middleware[];
+  private middlewares: Middleware[] = [];
   // private maxConnectTimeGenerator: unknown;
 
   constructor(phxSocket: Phoenix.Socket, options?: ClientOptions) {
@@ -133,11 +132,8 @@ export class SubscriptionClient {
 
     // this.connectionCallback = connectionCallback;
     // this.url = url;
-    // this.operations = {};
-    // this.nextOperationId = 0;
     // this.minWsTimeout = minTimeout;
     // this.wsTimeout = timeout;
-    // this.unsentMessagesQueue = [];
     // this.reconnect = reconnect;
     // this.reconnecting = false;
     // this.reconnectionAttempts = reconnectionAttempts;
@@ -146,7 +142,6 @@ export class SubscriptionClient {
     // this.closedByUser = false;
     // this.backoff = new Backoff({ jitter: 0.5 });
     // this.eventEmitter = new EventEmitter();
-    // this.middlewares = [];
     // this.client = null;
     // this.maxConnectTimeGenerator = this.createMaxConnectTimeGenerator();
     // this.connectionParams = this.getConnectionParams(connectionParams);
@@ -275,29 +270,29 @@ export class SubscriptionClient {
   //   });
   // }
 
-  // public applyMiddlewares(options: Operation): Promise<Operation> {
-  //   return new Promise((resolve, reject) => {
-  //     const queue = (funcs: Middleware[], scope: any) => {
-  //       const next = (error?: any) => {
-  //         if (error) {
-  //           reject(error);
-  //         } else {
-  //           if (funcs.length > 0) {
-  //             const f = funcs.shift();
-  //             if (f) {
-  //               f.applyMiddleware.apply(scope, [options, next]);
-  //             }
-  //           } else {
-  //             resolve(options);
-  //           }
-  //         }
-  //       };
-  //       next();
-  //     };
+  public applyMiddlewares(operation: Operation): Promise<Operation> {
+    return new Promise<Operation>((resolve, reject) => {
+      const queue = (funcs: Middleware[], scope: unknown) => {
+        const next = (error?: unknown) => {
+          if (error) {
+            reject(error);
+          } else {
+            if (funcs.length > 0) {
+              const f = funcs.shift();
+              if (f) {
+                f.applyMiddleware.apply(scope, [operation, next]);
+              }
+            } else {
+              resolve(operation);
+            }
+          }
+        };
+        next();
+      };
 
-  //     queue([...this.middlewares], this);
-  //   });
-  // }
+      queue([...this.middlewares], this);
+    });
+  }
 
   // public use(middlewares: Middleware[]): SubscriptionClient {
   //   middlewares.map((middleware) => {
@@ -326,20 +321,18 @@ export class SubscriptionClient {
   //     });
   // }
 
-  private executeOperation(options: Operation, handler: (error: Error[], result?: any) => void): string {
-    if (this.phxSocket.connectionState === null) {
-      this.connect();
-    }
+  private executeOperation(operation: Operation, handler: (error: Error[], result?: unknown) => void): string {
+    this.connect();
 
     const opId = this.generateOperationId();
-    this.operations[opId] = { options: options, handler };
+    this.operations[opId] = { operation, handler };
 
-    this.applyMiddlewares(options)
-      .then((processedOptions) => {
-        this.checkOperationOptions(processedOptions, handler);
+    this.applyMiddlewares(operation)
+      .then((processedOperation) => {
+        this.checkOperation(processedOperation);
         if (this.operations[opId]) {
-          this.operations[opId] = { options: processedOptions, handler };
-          this.sendMessage(opId, MessageTypes.GQL_START, processedOptions);
+          this.operations[opId] = { operation: processedOperation, handler };
+          this.sendMessage(opId, MessageTypes.GQL_START, processedOperation);
         }
       })
       .catch((error) => {
@@ -358,111 +351,98 @@ export class SubscriptionClient {
         complete: () => complete && complete(),
       };
     }
+    return observerOrNext;
+  }
 
-  //   return observerOrNext;
-  // }
+  private checkOperation(operation: Operation) {
+    const { query, variables, operationName } = operation;
 
-  // private checkOperationOptions(options: Operation, handler: (error: Error[], result?: any) => void) {
-  //   const { query, variables, operationName } = options;
+    if (!getOperationAST(query, operationName) || (operationName && !isString(operationName)) || (variables && !isObject(variables))) {
+      throw new Error(
+        'Incorrect option types. query must be a document, `operationName` must be a string, and `variables` must be an object.',
+      );
+    }
+  }
 
-  //   if (!query) {
-  //     throw new Error('Must provide a query.');
-  //   }
+  private buildMessage(id: string, type: 'start' | 'stop', payload?: Operation) {
+    const payloadToReturn =
+      payload && payload.query
+        ? {
+            ...payload,
+            query: typeof payload.query === 'string' ? payload.query : print(payload.query),
+          }
+        : payload;
 
-  //   if (!handler) {
-  //     throw new Error('Must provide an handler.');
-  //   }
+    return {
+      id,
+      type,
+      payload: payloadToReturn,
+    };
+  }
 
-  //   if (
-  //     (!isString(query) && !getOperationAST(query, operationName)) ||
-  //     (operationName && !isString(operationName)) ||
-  //     (variables && !isObject(variables))
-  //   ) {
-  //     throw new Error(
-  //       'Incorrect option types. query must be a string or a document,' +
-  //         '`operationName` must be a string, and `variables` must be an object.',
-  //     );
-  //   }
-  // }
+  // ensure we have an array of errors
+  private formatErrors(errors: unknown): FormatedError[] {
+    if (Array.isArray(errors)) {
+      return errors;
+    }
 
-  // private buildMessage(id: string, type: string, payload: any) {
-  //   const payloadToReturn =
-  //     payload && payload.query
-  //       ? {
-  //           ...payload,
-  //           query: typeof payload.query === 'string' ? payload.query : print(payload.query),
-  //         }
-  //       : payload;
+    console.error('Got errors, should handle them!', errors);
+    // // TODO  we should not pass ValidationError to callback in the future.
+    // // ValidationError
+    // if (errors && errors.errors) {
+    //   return this.formatErrors(errors.errors);
+    // }
 
-  //   return {
-  //     id,
-  //     type,
-  //     payload: payloadToReturn,
-  //   };
-  // }
+    // if (errors && errors.message) {
+    //   return [errors];
+    // }
 
-  // // ensure we have an array of errors
-  // private formatErrors(errors: any): FormatedError[] {
-  //   if (Array.isArray(errors)) {
-  //     return errors;
-  //   }
+    return [
+      {
+        name: 'FormatedError',
+        message: 'Unknown error',
+        originalError: errors,
+      },
+    ];
+  }
 
-  //   // TODO  we should not pass ValidationError to callback in the future.
-  //   // ValidationError
-  //   if (errors && errors.errors) {
-  //     return this.formatErrors(errors.errors);
-  //   }
+  private sendMessage(id: string, type: 'start' | 'stop', payload?: Operation) {
+    this.sendMessageRaw(this.buildMessage(id, type, payload));
+  }
 
-  //   if (errors && errors.message) {
-  //     return [errors];
-  //   }
+  // send message, or queue it if connection is not open
+  private sendMessageRaw(message: Record<string, unknown>) {
+    switch (this.phxSocket.connectionState()) {
+      case 'open': {
+        const serializedMessage: string = JSON.stringify(message);
+        try {
+          JSON.parse(serializedMessage);
+        } catch (e) {
+          console.error('Message must be JSON-serializable. Got:', message);
+          // this.eventEmitter.emit('error', new Error(`Message must be JSON-serializable. Got: ${message}`));
+        }
 
-  //   return [
-  //     {
-  //       name: 'FormatedError',
-  //       message: 'Unknown error',
-  //       originalError: errors,
-  //     },
-  //   ];
-  // }
+        this.phxChannel.push(serializedMessage);
+        break;
+      }
+      case 'connecting':
+        this.unsentMessagesQueue.push(message);
+        break;
+      default:
+        console.error('A message was not sent because socket is not connected, is closing or is already closed. Message was:', message);
+      // this.eventEmitter.emit(
+      //   'error',
+      //   new Error(
+      //     `${'A message was not sent because socket is not connected, is closing or ' +
+      //       'is already closed. Message was: '}${JSON.stringify(message)}`,
+      //   ),
+      // );
+    }
+  }
 
-  // private sendMessage(id: string, type: string, payload: any) {
-  //   this.sendMessageRaw(this.buildMessage(id, type, payload));
-  // }
-
-  // // send message, or queue it if connection is not open
-  // private sendMessageRaw(message: Record<string, any>) {
-  //   switch (this.status) {
-  //     case this.wsImpl.OPEN:
-  //       const serializedMessage: string = JSON.stringify(message);
-  //       try {
-  //         JSON.parse(serializedMessage);
-  //       } catch (e) {
-  //         this.eventEmitter.emit('error', new Error(`Message must be JSON-serializable. Got: ${message}`));
-  //       }
-
-  //       this.client.send(serializedMessage);
-  //       break;
-  //     case this.wsImpl.CONNECTING:
-  //       this.unsentMessagesQueue.push(message);
-
-  //       break;
-  //     default:
-  //       if (!this.reconnecting) {
-  //         this.eventEmitter.emit(
-  //           'error',
-  //           new Error(
-  //             `${'A message was not sent because socket is not connected, is closing or ' +
-  //               'is already closed. Message was: '}${JSON.stringify(message)}`,
-  //           ),
-  //         );
-  //       }
-  //   }
-  // }
-
-  // private generateOperationId(): string {
-  //   return String(++this.nextOperationId);
-  // }
+  private generateOperationId(): string {
+    return String(++this.nextOperationId);
+  }
 
   // private tryReconnect() {
   //   if (!this.reconnect || this.backoff.attempts >= this.reconnectionAttempts) {
@@ -471,7 +451,7 @@ export class SubscriptionClient {
 
   //   if (!this.reconnecting) {
   //     Object.keys(this.operations).forEach((key) => {
-  //       this.unsentMessagesQueue.push(this.buildMessage(key, MessageTypes.GQL_START, this.operations[key].options));
+  //       this.unsentMessagesQueue.push(this.buildMessage(key, MessageTypes.GQL_START, this.operations[key].operation));
   //     });
   //     this.reconnecting = true;
   //   }
@@ -505,12 +485,13 @@ export class SubscriptionClient {
   private connect() {
     console.log('connect called', this);
     // TODO check if already connected and joined - skip this step
-    if(this.phxSocket.isConnected() && this.phxChannel.)
+    if (this.phxJoined) return;
     this.phxSocket.connect();
     this.phxChannel.join();
     //   .receive('ok', onSucceedHandler)
     //   .receive('error', onErrorHandler)
     //   .receive('timeout', onTimeoutHandler);
+    this.phxJoined = true;
 
     //   this.client.onopen = async () => {
     //     if (this.status === this.wsImpl.OPEN) {
@@ -618,11 +599,10 @@ export class SubscriptionClient {
   //   }
   // }
 
-  // private unsubscribe(opId: string) {
-  //   if (this.operations[opId]) {
-  //     delete this.operations[opId];
-  //     this.setInactivityTimeout();
-  //     this.sendMessage(opId, MessageTypes.GQL_STOP, undefined);
-  //   }
-  // }
+  private unsubscribe(opId: string) {
+    if (this.operations[opId]) {
+      delete this.operations[opId];
+      this.sendMessage(opId, MessageTypes.GQL_STOP);
+    }
+  }
 }
