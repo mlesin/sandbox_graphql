@@ -3,16 +3,17 @@ import { ExecutionResult } from 'graphql/execution/execute';
 import { Observable, Observer } from '@apollo/client/utilities';
 import { Operation } from '@apollo/client/core';
 import { print } from 'graphql/language/printer';
-import { DocumentNode } from 'graphql/language/ast';
+import { DocumentNode, OperationTypeNode } from 'graphql/language/ast';
 import { getOperationAST } from 'graphql/utilities/getOperationAST';
-// import $$observable from 'symbol-observable';
-import MessageTypes from './message-types';
+import $$observable from 'symbol-observable';
+import { MessageTypes } from './message-types';
 import * as Phoenix from 'phoenix';
+import { Message, SubscriptionPayload } from './phoenixMessage';
 
 // Defaults
 // const MIN_WS_TIMEOUT = 1000;
 // const WS_TIMEOUT = 30000;
-const ABSINTHE_CHANNEL_NAME = '__absinthe__:control';
+const ABSINTHE_CONTROL_CHANNEL_NAME = '__absinthe__:control';
 
 // Helpers
 function isString(value?: unknown): value is string {
@@ -22,6 +23,15 @@ function isString(value?: unknown): value is string {
 function isObject(value?: unknown): boolean {
   return value !== null && typeof value === 'object';
 }
+
+const getOperationType = (operation: DocumentNode): OperationTypeNode => {
+  const opdef = operation.definitions.find(({ kind }) => kind === 'OperationDefinition');
+  if (opdef?.kind === 'OperationDefinition') {
+    return opdef.operation;
+  }
+  throw new TypeError(`Invalid operation:\n${operation}`);
+};
+
 /*
 // TODO TO REMOVE
 // export interface Observer<T> {
@@ -53,7 +63,7 @@ export type FormatedError = Error & {
 
 export interface OperationHandler {
   operation: Operation;
-  handler: (error: Error[], result?: unknown) => void;
+  handler: (error?: Error[], result?: ExecutionResult) => void;
 }
 
 export type Operations = Record<string, OperationHandler>;
@@ -116,7 +126,7 @@ export class SubscriptionClient {
   // private tryReconnectTimeoutId: unknown;
   // private checkConnectionIntervalId: unknown;
   // private maxConnectTimeoutId: unknown;
-  private middlewares: Middleware[] = [];
+  // private middlewares: Middleware[] = [];
   // private maxConnectTimeGenerator: unknown;
 
   constructor(phxSocket: Phoenix.Socket, options?: ClientOptions) {
@@ -147,7 +157,7 @@ export class SubscriptionClient {
     // this.connectionParams = this.getConnectionParams(connectionParams);
 
     this.phxSocket = phxSocket;
-    this.phxChannel = this.phxSocket.channel(ABSINTHE_CHANNEL_NAME);
+    this.phxChannel = this.phxSocket.channel(ABSINTHE_CONTROL_CHANNEL_NAME);
 
     if (!this.lazy) {
       this.connect();
@@ -189,12 +199,40 @@ export class SubscriptionClient {
   //   }
   // }
 
-  public request(request: Operation): Observable<ExecutionResult> {
-    const getObserver = this.getObserver.bind(this);
-    const executeOperation = this.executeOperation.bind(this);
+  public request(request: Operation): Observable<ExecutionResult> | null {
+    this.connect();
+    // const getObserver = this.getObserver.bind(this);
+    // const executeOperation = this.executeOperation.bind(this);
     // const unsubscribe = this.unsubscribe.bind(this);
     // let opId: string;
-    // this.clearInactivityTimeout();
+    return new Observable<ExecutionResult>((observer) => {
+      console.log('executing operation...');
+      const p = this.phxChannel.push('doc', { variables: request.variables, query: print(request.query) });
+      p.receive('ok', (response) => {
+        console.log('got response:', response);
+        if (getOperationType(request.query) === 'subscription') {
+          console.log('got subscription:', response.subscriptionId);
+          // const subChan = this.phxSocket.channel(response.subscriptionId);
+          // subChan.join();
+          // subChan.onMessage = (subResponse) => console.log('catch sub event', subResponse);
+          // this.phxChannel.on('subscription:data', (subResponse) => console.log('catch sub event', subResponse));
+        }
+        observer.next(response);
+      })
+        .receive('error', (errors) => {
+          console.log('got errors:', errors);
+          observer.error(errors[0]);
+        })
+        .receive('timeout', (timeout) => {
+          console.log('got timeout:', timeout);
+          observer.error(new Error('Request timed out'));
+        });
+
+      // unsubscription
+      return () => {
+        console.log('unsubscribe observer called', request);
+      };
+    });
     // return {
     //   [$$observable]() {
     //     return this;
@@ -220,14 +258,16 @@ export class SubscriptionClient {
     //         }
     //       }
     //     });
-    //     return {
+    //     const subscription: ZenObservable.Subscription = {
+    //       closed: true,
     //       unsubscribe: () => {
     //         if (opId) {
     //           unsubscribe(opId);
-    //           opId = null;
+    //           // opId = null;
     //         }
     //       },
     //     };
+    //     return subscription;
     //   },
     // };
   }
@@ -270,29 +310,29 @@ export class SubscriptionClient {
   //   });
   // }
 
-  public applyMiddlewares(operation: Operation): Promise<Operation> {
-    return new Promise<Operation>((resolve, reject) => {
-      const queue = (funcs: Middleware[], scope: unknown) => {
-        const next = (error?: unknown) => {
-          if (error) {
-            reject(error);
-          } else {
-            if (funcs.length > 0) {
-              const f = funcs.shift();
-              if (f) {
-                f.applyMiddleware.apply(scope, [operation, next]);
-              }
-            } else {
-              resolve(operation);
-            }
-          }
-        };
-        next();
-      };
+  // public applyMiddlewares(operation: Operation): Promise<Operation> {
+  //   return new Promise<Operation>((resolve, reject) => {
+  //     const queue = (funcs: Middleware[], scope: unknown) => {
+  //       const next = (error?: unknown) => {
+  //         if (error) {
+  //           reject(error);
+  //         } else {
+  //           if (funcs.length > 0) {
+  //             const f = funcs.shift();
+  //             if (f) {
+  //               f.applyMiddleware.apply(scope, [operation, next]);
+  //             }
+  //           } else {
+  //             resolve(operation);
+  //           }
+  //         }
+  //       };
+  //       next();
+  //     };
 
-      queue([...this.middlewares], this);
-    });
-  }
+  //     queue([...this.middlewares], this);
+  //   });
+  // }
 
   // public use(middlewares: Middleware[]): SubscriptionClient {
   //   middlewares.map((middleware) => {
@@ -321,124 +361,135 @@ export class SubscriptionClient {
   //     });
   // }
 
-  private executeOperation(operation: Operation, handler: (error: Error[], result?: unknown) => void): string {
-    this.connect();
+  // private executeOperation(operation: Operation, handler: (error?: Error[], result?: ExecutionResult) => void): string {
+  //   this.connect();
 
-    const opId = this.generateOperationId();
-    this.operations[opId] = { operation, handler };
+  //   const opId = this.generateOperationId();
+  //   this.operations[opId] = { operation, handler };
 
-    this.applyMiddlewares(operation)
-      .then((processedOperation) => {
-        this.checkOperation(processedOperation);
-        if (this.operations[opId]) {
-          this.operations[opId] = { operation: processedOperation, handler };
-          this.sendMessage(opId, MessageTypes.GQL_START, processedOperation);
-        }
-      })
-      .catch((error) => {
-        this.unsubscribe(opId);
-        handler(this.formatErrors(error));
-      });
+  //   console.log('executing operation...');
+  //   const p = this.phxChannel.push('doc', { variables: operation.variables, query: print(operation.query) });
+  //   p.receive('ok', (response) => {
+  //     console.log('got response:', response);
+  //     handler(undefined, response);
+  //   })
+  //     .receive('error', (errors) => {
+  //       console.log('got errors:', errors);
+  //       handler(errors);
+  //     })
+  //     .receive('timeout', (timeout) => console.log('got timeout:', timeout));
 
-    return opId;
-  }
+  //   // this.applyMiddlewares(operation)
+  //   //   .then((processedOperation) => {
+  //   //     this.checkOperation(processedOperation);
+  //   //     if (this.operations[opId]) {
+  //   //       this.operations[opId] = { operation: processedOperation, handler };
+  //   //       // this.sendMessage(opId, MessageTypes.GQL_START, processedOperation);
+  //   //     }
+  //   //   })
+  //   //   .catch((error) => {
+  //   //     this.unsubscribe(opId);
+  //   //     handler(this.formatErrors(error));
+  //   //   });
 
-  private getObserver<T>(observerOrNext: Observer<T> | ((v: T) => void), error?: (e: Error) => void, complete?: () => void) {
-    if (typeof observerOrNext === 'function') {
-      return {
-        next: (v: T) => observerOrNext(v),
-        error: (e: Error) => error && error(e),
-        complete: () => complete && complete(),
-      };
-    }
-    return observerOrNext;
-  }
+  //   return opId;
+  // }
 
-  private checkOperation(operation: Operation) {
-    const { query, variables, operationName } = operation;
+  // private getObserver<T>(observerOrNext: Observer<T> | ((v: T) => void), error?: (e: Error) => void, complete?: () => void) {
+  //   if (typeof observerOrNext === 'function') {
+  //     return {
+  //       next: (v: T) => observerOrNext(v),
+  //       error: (e: Error) => error && error(e),
+  //       complete: () => complete && complete(),
+  //     };
+  //   }
+  //   return observerOrNext;
+  // }
 
-    if (!getOperationAST(query, operationName) || (operationName && !isString(operationName)) || (variables && !isObject(variables))) {
-      throw new Error(
-        'Incorrect option types. query must be a document, `operationName` must be a string, and `variables` must be an object.',
-      );
-    }
-  }
+  // private checkOperation(operation: Operation) {
+  //   const { query, variables, operationName } = operation;
 
-  private buildMessage(id: string, type: 'start' | 'stop', payload?: Operation) {
-    const payloadToReturn =
-      payload && payload.query
-        ? {
-            ...payload,
-            query: typeof payload.query === 'string' ? payload.query : print(payload.query),
-          }
-        : payload;
+  //   if (!getOperationAST(query, operationName) || (operationName && !isString(operationName)) || (variables && !isObject(variables))) {
+  //     throw new Error(
+  //       'Incorrect option types. query must be a document, `operationName` must be a string, and `variables` must be an object.',
+  //     );
+  //   }
+  // }
 
-    return {
-      id,
-      type,
-      payload: payloadToReturn,
-    };
-  }
+  // private buildMessage(id: string, type: 'start' | 'stop', payload?: Operation) {
+  //   const payloadToReturn =
+  //     payload && payload.query
+  //       ? {
+  //           ...payload,
+  //           query: typeof payload.query === 'string' ? payload.query : print(payload.query),
+  //         }
+  //       : payload;
 
-  // ensure we have an array of errors
-  private formatErrors(errors: unknown): FormatedError[] {
-    if (Array.isArray(errors)) {
-      return errors;
-    }
+  //   return {
+  //     id,
+  //     type,
+  //     payload: payloadToReturn,
+  //   };
+  // }
 
-    console.error('Got errors, should handle them!', errors);
-    // // TODO  we should not pass ValidationError to callback in the future.
-    // // ValidationError
-    // if (errors && errors.errors) {
-    //   return this.formatErrors(errors.errors);
-    // }
+  // // ensure we have an array of errors
+  // private formatErrors(errors: unknown): FormatedError[] {
+  //   if (Array.isArray(errors)) {
+  //     return errors;
+  //   }
 
-    // if (errors && errors.message) {
-    //   return [errors];
-    // }
+  //   // TODO  we should not pass ValidationError to callback in the future.
+  //   // ValidationError
+  //   if (errors && errors.errors) {
+  //     return this.formatErrors(errors.errors);
+  //   }
 
-    return [
-      {
-        name: 'FormatedError',
-        message: 'Unknown error',
-        originalError: errors,
-      },
-    ];
-  }
+  //   if (errors && errors.message) {
+  //     return [errors];
+  //   }
 
-  private sendMessage(id: string, type: 'start' | 'stop', payload?: Operation) {
-    this.sendMessageRaw(this.buildMessage(id, type, payload));
-  }
+  //   return [
+  //     {
+  //       name: 'FormatedError',
+  //       message: 'Unknown error',
+  //       originalError: errors,
+  //     },
+  //   ];
+  // }
 
-  // send message, or queue it if connection is not open
-  private sendMessageRaw(message: Record<string, unknown>) {
-    switch (this.phxSocket.connectionState()) {
-      case 'open': {
-        const serializedMessage: string = JSON.stringify(message);
-        try {
-          JSON.parse(serializedMessage);
-        } catch (e) {
-          console.error('Message must be JSON-serializable. Got:', message);
-          // this.eventEmitter.emit('error', new Error(`Message must be JSON-serializable. Got: ${message}`));
-        }
+  // private sendMessage(id: string, type: 'doc' | 'unsubscribe', payload?: Operation) {
+  //   // this.sendMessageRaw(this.buildMessage(id, type, payload));
+  // }
 
-        this.phxChannel.push(serializedMessage);
-        break;
-      }
-      case 'connecting':
-        this.unsentMessagesQueue.push(message);
-        break;
-      default:
-        console.error('A message was not sent because socket is not connected, is closing or is already closed. Message was:', message);
-      // this.eventEmitter.emit(
-      //   'error',
-      //   new Error(
-      //     `${'A message was not sent because socket is not connected, is closing or ' +
-      //       'is already closed. Message was: '}${JSON.stringify(message)}`,
-      //   ),
-      // );
-    }
-  }
+  // // send message, or queue it if connection is not open
+  // private sendMessageRaw(message: Record<string, unknown>) {
+  //   switch (this.phxSocket.connectionState()) {
+  //     case 'open': {
+  //       const serializedMessage: string = JSON.stringify(message);
+  //       try {
+  //         JSON.parse(serializedMessage);
+  //       } catch (e) {
+  //         console.error('Message must be JSON-serializable. Got:', message);
+  //         // this.eventEmitter.emit('error', new Error(`Message must be JSON-serializable. Got: ${message}`));
+  //       }
+
+  //       // this.phxChannel.push(serializedMessage);
+  //       break;
+  //     }
+  //     case 'connecting':
+  //       this.unsentMessagesQueue.push(message);
+  //       break;
+  //     default:
+  //       console.error('A message was not sent because socket is not connected, is closing or is already closed. Message was:', message);
+  //     // this.eventEmitter.emit(
+  //     //   'error',
+  //     //   new Error(
+  //     //     `${'A message was not sent because socket is not connected, is closing or ' +
+  //     //       'is already closed. Message was: '}${JSON.stringify(message)}`,
+  //     //   ),
+  //     // );
+  //   }
+  // }
 
   private generateOperationId(): string {
     return String(++this.nextOperationId);
@@ -482,16 +533,21 @@ export class SubscriptionClient {
   //   }
   // }
 
+  private handleSubscriptionMessage(payload: SubscriptionPayload) {
+    console.log('GOT SUBSCRIPTION MESSAGE:', payload);
+  }
+
   private connect() {
-    console.log('connect called', this);
-    // TODO check if already connected and joined - skip this step
     if (this.phxJoined) return;
     this.phxSocket.connect();
     this.phxChannel.join();
-    //   .receive('ok', onSucceedHandler)
-    //   .receive('error', onErrorHandler)
-    //   .receive('timeout', onTimeoutHandler);
     this.phxJoined = true;
+    console.log('connect initiated', this);
+    this.phxSocket.onMessage((message: Message<SubscriptionPayload>) => {
+      if (message.event === 'subscription:data') {
+        this.handleSubscriptionMessage(message.payload);
+      }
+    });
 
     //   this.client.onopen = async () => {
     //     if (this.status === this.wsImpl.OPEN) {
@@ -599,10 +655,10 @@ export class SubscriptionClient {
   //   }
   // }
 
-  private unsubscribe(opId: string) {
-    if (this.operations[opId]) {
-      delete this.operations[opId];
-      this.sendMessage(opId, MessageTypes.GQL_STOP);
-    }
-  }
+  // private unsubscribe(opId: string) {
+  //   if (this.operations[opId]) {
+  //     delete this.operations[opId];
+  //     // this.sendMessage(opId, MessageTypes.GQL_STOP);
+  //   }
+  // }
 }
