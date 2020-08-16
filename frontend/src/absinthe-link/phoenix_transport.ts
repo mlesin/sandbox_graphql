@@ -18,11 +18,16 @@ export interface ClientOptions {
   lazy?: boolean;
 }
 
+interface SubscriptionHandler {
+  onResult: (result: ExecutionResult) => void;
+  unsubscribe: () => void;
+}
+
 export class SubscriptionClient {
   private phxSocket: Phoenix.Socket;
   private phxChannel: Phoenix.Channel;
   private phxJoined = false;
-  public subscriptions: Record<string, (result: ExecutionResult) => void> = {};
+  public subscriptions: Record<string, SubscriptionHandler> = {};
   private lazy: boolean;
 
   constructor(phxSocket: Phoenix.Socket, options?: ClientOptions) {
@@ -46,10 +51,18 @@ export class SubscriptionClient {
         .receive('ok', (response) => {
           // console.log('got response:', response);
           if (getOperationType(request.query) === 'subscription') {
-            // console.log('got subscription:', response.subscriptionId);
+            // console.log('got subscription:', response.subscriptionId, this.subscriptions);
             subscriptionId = response.subscriptionId;
-            this.subscriptions[response.subscriptionId] = (result: ExecutionResult) => {
-              observer.next(result);
+            this.subscriptions[response.subscriptionId] = {
+              onResult: (result: ExecutionResult) => {
+                // console.log('pushing result from sub:', result);
+                observer.next(result);
+              },
+              unsubscribe: () => {
+                console.log('completing subscription');
+                observer.complete();
+                this.phxChannel.push('unsubscribe', { subscriptionId });
+              },
             };
           } else {
             observer.next(response);
@@ -70,8 +83,10 @@ export class SubscriptionClient {
       // unsubscription
       return () => {
         if (subscriptionId) {
-          console.log('unsubscribing subscription:', subscriptionId);
-          this.subscriptions;
+          // console.log('unsubscribing subscription:', subscriptionId);
+          this.subscriptions[subscriptionId].unsubscribe();
+          delete this.subscriptions[subscriptionId];
+          // console.log('subscriptions:', this.subscriptions);
         }
       };
     });
@@ -85,7 +100,8 @@ export class SubscriptionClient {
     // console.log('connect initiated', this);
     this.phxSocket.onMessage((message: Message<SubscriptionPayload>) => {
       if (message.event === 'subscription:data') {
-        this.subscriptions[message.payload.subscriptionId](message.payload.result);
+        // console.log('got sub event:', message);
+        this.subscriptions[message.payload.subscriptionId].onResult(message.payload.result);
       }
     });
   }

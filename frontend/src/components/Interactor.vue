@@ -2,6 +2,7 @@
   <v-container>
     <pusher />
     <fetcher />
+    <fetcher />
   </v-container>
 </template>
 
