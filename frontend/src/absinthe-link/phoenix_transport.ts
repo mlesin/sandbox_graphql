@@ -59,7 +59,7 @@ export class SubscriptionClient {
                 observer.next(result);
               },
               unsubscribe: () => {
-                console.log('completing subscription');
+                // console.log('completing subscription');
                 observer.complete();
                 this.phxChannel.push('unsubscribe', { subscriptionId });
               },
