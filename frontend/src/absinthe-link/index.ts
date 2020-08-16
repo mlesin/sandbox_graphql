@@ -1,4 +1,4 @@
-import { SubscriptionClient, ClientOptions } from './transport-phoenix';
+import { SubscriptionClient, ClientOptions } from './phoenix_transport';
 import { ApolloLink, Operation, FetchResult } from '@apollo/client/core';
 import { Observable } from '@apollo/client/utilities';
 import { Socket } from 'phoenix';

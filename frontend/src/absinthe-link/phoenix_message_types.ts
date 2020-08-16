@@ -1,3 +1,5 @@
+import { GraphQLError, ExecutionResult } from 'graphql';
+
 export interface Message<Payload> {
   topic: string;
   event: string;
@@ -6,19 +8,9 @@ export interface Message<Payload> {
   join_ref: null | number;
 }
 
-export interface GqlErrorLocation {
-  line: number;
-  column: number;
-}
-
-export interface GqlError {
-  message: string;
-  locations?: Array<GqlErrorLocation>;
-}
-
 export interface GqlResponse {
-  data?: unknown;
-  errors?: Array<GqlError>;
+  data?: ExecutionResult;
+  errors?: readonly GraphQLError[];
 }
 
 export interface SubscriptionPayload {
