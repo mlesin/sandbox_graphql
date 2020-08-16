@@ -20,37 +20,24 @@
           width="100"
         />
       </div>
-
       <v-spacer />
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-btn @click="$router.push('/interactor')">Interactor</v-btn>
+      <v-btn @click="$router.push('/incrementor')">Incrementor</v-btn>
     </v-app-bar>
 
     <v-main>
-      <!-- <incrementor /> -->
-      <pusher />
-      <fetcher />
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
-import Incrementor from '@/components/Incrementor.vue';
-import Fetcher from '@/components/Fetcher.vue';
-import Pusher from '@/components/Pusher.vue';
 
 export default defineComponent({
   name: 'App',
 
-  components: {
-    Incrementor,
-    Fetcher,
-    Pusher,
-  },
+  components: {},
 
   data: () => ({
     //

@@ -40,20 +40,22 @@ export class SubscriptionClient {
     this.connect();
 
     return new Observable<ExecutionResult>((observer) => {
-      // console.log('executing operation...');
-      const p = this.phxChannel.push('doc', { variables: request.variables, query: print(request.query) });
-      p.receive('ok', (response) => {
-        // console.log('got response:', response);
-        if (getOperationType(request.query) === 'subscription') {
-          // console.log('got subscription:', response.subscriptionId);
-          this.subscriptions[response.subscriptionId] = (result: ExecutionResult) => {
-            observer.next(result);
-          };
-        } else {
-          observer.next(response);
-          observer.complete();
-        }
-      })
+      let subscriptionId: string | undefined;
+      const push = this.phxChannel.push('doc', { variables: request.variables, query: print(request.query) });
+      push
+        .receive('ok', (response) => {
+          // console.log('got response:', response);
+          if (getOperationType(request.query) === 'subscription') {
+            // console.log('got subscription:', response.subscriptionId);
+            subscriptionId = response.subscriptionId;
+            this.subscriptions[response.subscriptionId] = (result: ExecutionResult) => {
+              observer.next(result);
+            };
+          } else {
+            observer.next(response);
+            observer.complete();
+          }
+        })
         .receive('error', (errors) => {
           console.log('got errors:', errors);
           observer.error(errors[0]);
@@ -67,7 +69,10 @@ export class SubscriptionClient {
 
       // unsubscription
       return () => {
-        console.log('unsubscribe observer called', request);
+        if (subscriptionId) {
+          console.log('unsubscribing subscription:', subscriptionId);
+          this.subscriptions;
+        }
       };
     });
   }
