@@ -31,10 +31,12 @@ defmodule SandboxWeb.Schema do
     field :task_added, :task do
       # arg(:task, non_null(:string))
 
-      config(fn args, _ ->
+      config(fn args, val ->
         IO.puts("in subscription config")
         IO.inspect(args)
-        {:ok, topic: "*", context_id: "global"}
+        IO.inspect(val.context)
+        # {:ok, topic: "*", context_id: "global"}
+        {:ok, topic: "*"}
       end)
 
       # this tells Absinthe to run any subscriptions with this field every time

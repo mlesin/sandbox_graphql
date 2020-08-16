@@ -31,6 +31,9 @@ export default defineComponent({
       updateQuery: (prev, { subscriptionData }): GetAllTasksQuery => {
         if (!subscriptionData.data) return prev;
         const newItem = subscriptionData.data.taskAdded;
+        // Quick safety check - if the new task is already
+        // present in the cache, we don't need to add it again.
+        if (prev.allTasks.some((ref) => ref.id === newItem?.id)) return prev;
         return Object.assign({}, prev, {
           allTasks: [...prev.allTasks, newItem],
         });
