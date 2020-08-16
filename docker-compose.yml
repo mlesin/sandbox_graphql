@@ -1,0 +1,23 @@
+version: "3.4"
+
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+    pg-data:
+
+services:
+  postgres:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_DB: &pg-db-name sandbox_graphql
+      POSTGRES_USER: &pg-db-user postgres
+      POSTGRES_PASSWORD: &pg-db-password ${DB_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - pg-data:/var/lib/postgresql/data:rw
+    networks:
+      - backend-network
