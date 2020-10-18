@@ -37,7 +37,7 @@ export default defineComponent({
     //   },
     // }));
 
-    onDone(async result => {
+    onDone(async (result) => {
       if (!result?.data?.createTask) return;
       formData.task = '';
       formData.description = '';

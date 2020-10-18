@@ -59,6 +59,7 @@ module.exports = {
         'vuetify/no-deprecated-classes': 'error',
         'vuetify/grid-unknown-attributes': 'error',
         'vuetify/no-legacy-grid': 'error',
+        'camelcase': ['off'],
         '@typescript-eslint/switch-exhaustiveness-check': ['error'],
         '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
         '@typescript-eslint/no-unused-vars': ['warn', { args: 'all', argsIgnorePattern: '^_' }],
@@ -74,6 +75,8 @@ module.exports = {
       files: ['src/generated/*.ts'],
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',
+        'no-use-before-define': ['off'],
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
       },
     },
   ],

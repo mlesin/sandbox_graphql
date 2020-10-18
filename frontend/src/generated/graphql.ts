@@ -95,7 +95,7 @@ export function useGetAllTasksQuery(
     | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>>
     | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAllTasksQuery, GetAllTasksQueryVariables>> = {},
 ) {
-  return VueApolloComposable.useQuery<GetAllTasksQuery, undefined>(GetAllTasksDocument, undefined, options);
+  return VueApolloComposable.useQuery<GetAllTasksQuery>(GetAllTasksDocument, options);
 }
 export type GetAllTasksQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAllTasksQuery, GetAllTasksQueryVariables>;
 export const CreateTaskDocument = gql`
@@ -168,7 +168,7 @@ export function useTaskAddedSubscription(
     | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<TaskAddedSubscription, TaskAddedSubscriptionVariables>>
     | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<TaskAddedSubscription, TaskAddedSubscriptionVariables>> = {},
 ) {
-  return VueApolloComposable.useSubscription<TaskAddedSubscription, undefined>(TaskAddedDocument, undefined, options);
+  return VueApolloComposable.useSubscription<TaskAddedSubscription>(TaskAddedDocument, undefined, options);
 }
 export type TaskAddedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<
   TaskAddedSubscription,

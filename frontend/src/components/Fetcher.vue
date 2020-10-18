@@ -18,6 +18,7 @@
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
 import { useGetAllTasksQuery, TaskAddedDocument, GetAllTasksQuery, TaskAddedSubscription } from '../generated/graphql';
+import { OperationVariables } from '@apollo/client/core';
 
 export default defineComponent({
   setup() {
@@ -25,7 +26,7 @@ export default defineComponent({
       pollInterval: 0,
       // notifyOnNetworkStatusChange: true,
     });
-    subscribeToMore<{}, TaskAddedSubscription>(() => ({
+    subscribeToMore<OperationVariables, TaskAddedSubscription>(() => ({
       document: TaskAddedDocument,
       variables: {},
       updateQuery: (prev, { subscriptionData }): GetAllTasksQuery => {
